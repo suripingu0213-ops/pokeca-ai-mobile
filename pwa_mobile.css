@@ -1,0 +1,92 @@
+/* スマホ版だけの見た目の調整(PC版のstyle.cssは変えない。index.htmlでstyle.cssの後に読み込む)。 */
+
+/* ---- ヘッダー: 誤タップしやすい「ターン終了」は消す(ターン終了は「すべての選択肢」から押す) ---- */
+#end-turn-btn {
+  display: none !important;
+}
+
+/* ヘッダーの文字が重ならないように折り返す(PC版は1行に収める前提だった) */
+#header-info {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+#turn-info,
+#ai-eval,
+#last-ai-action,
+#replay-progress {
+  white-space: normal;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* ボタン類は次の行に回して、右端で切れないようにする */
+#header-controls {
+  flex: 1 1 100%;
+  justify-content: flex-start;
+}
+
+/* ---- 「一手戻す」: 画面左の中ほどに浮かぶ大きな丸ボタン(親指が届き、手札や盤面の操作とは重ならない位置) ---- */
+#undo-btn {
+  position: fixed !important;
+  left: 8px;
+  top: 48vh;
+  z-index: 25;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: 0.62rem;
+  line-height: 1.1;
+  font-weight: bold;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+  opacity: 0.92;
+}
+#undo-btn:active {
+  transform: scale(0.94);
+  opacity: 1;
+}
+#undo-btn .pwa-undo-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ---- 選択パネル(なかよしポフィン等): 「盤面を見る」を押すと、盤面を覆わない小さな丸いボタンだけになる ---- */
+#search-choice-toggle-btn,
+.pwa-peek-btn {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.9rem;
+  min-height: 40px;
+}
+#search-choice-box.collapsed,
+#damage-distribution-box.pwa-collapsed {
+  width: auto;
+  margin-left: auto;
+  padding: 0.35rem;
+  gap: 0;
+  border-radius: 999px;
+}
+#search-choice-box.collapsed #search-choice-title,
+#damage-distribution-box.pwa-collapsed > :not(.pwa-peek-btn) {
+  display: none;
+}
+#search-choice-box.collapsed #search-choice-header {
+  justify-content: flex-end;
+}
+.pwa-peek-btn {
+  align-self: flex-end;
+  border-radius: 999px;
+  font-weight: bold;
+  white-space: nowrap;
+}

@@ -185,6 +185,43 @@
   window.pokecaExportRecords = exportRecords;
   window.pokecaMakeZip = makeZip; // テスト用
 
+  // ---- スマホ向けの画面調整(見た目の大半は pwa_mobile.css) ----
+  document.addEventListener("DOMContentLoaded", () => {
+    // 「一手戻す」を丸いボタンに(アイコン+ラベル)
+    const undo = document.getElementById("undo-btn");
+    if (undo) undo.innerHTML = '<span class="pwa-undo-icon">↩</span><span>一手戻す</span>';
+    // ダメカンを置く選択パネルにも、サーチ選択パネルと同じ「盤面を見る」ボタンを付ける
+    const box = document.getElementById("damage-distribution-box");
+    if (box) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "pwa-peek-btn";
+      const sync = () => (btn.textContent = box.classList.contains("pwa-collapsed") ? "選択に戻る ▴" : "盤面を見る ▾");
+      btn.addEventListener("click", () => {
+        box.classList.toggle("pwa-collapsed");
+        sync();
+      });
+      box.prepend(btn);
+      sync();
+      // 新しい選択が始まったら開いた状態に戻す(隠れたままだと選択できないことに気づけない)
+      const overlay = document.getElementById("damage-distribution-overlay");
+      new MutationObserver(() => {
+        if (overlay.classList.contains("hidden")) {
+          box.classList.remove("pwa-collapsed");
+          sync();
+        }
+      }).observe(overlay, { attributes: true, attributeFilter: ["class"] });
+    }
+    // サーチ選択パネルのボタンの文言を分かりやすく(開いている間は「盤面を見る」、たたむと「選択に戻る」)
+    const sbtn = document.getElementById("search-choice-toggle-btn");
+    if (sbtn) {
+      new MutationObserver(() => {
+        const t = sbtn.textContent;
+        if (t.includes("盤面を見る ▸")) sbtn.textContent = "選択に戻る ▴";
+      }).observe(sbtn, { childList: true, characterData: true, subtree: true });
+    }
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
     const tools = document.createElement("div");
     tools.id = "pwa-tools";
