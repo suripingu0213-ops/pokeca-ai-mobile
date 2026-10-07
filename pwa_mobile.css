@@ -1,5 +1,11 @@
 /* スマホ版だけの見た目の調整(PC版のstyle.cssは変えない。index.htmlでstyle.cssの後に読み込む)。 */
 
+/* ダブルタップで画面が拡大しないようにする(同じポケモンを続けて選ぶ操作などで誤って拡大するため)。
+   ピンチ操作での拡大縮小は残す。 */
+html, body, * {
+  touch-action: manipulation;
+}
+
 /* ---- ヘッダー: 誤タップしやすい「ターン終了」は消す(ターン終了は「すべての選択肢」から押す) ---- */
 #end-turn-btn {
   display: none !important;

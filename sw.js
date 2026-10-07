@@ -2,7 +2,7 @@
 // ビルドのたびに VERSION とファイル一覧が書き換わる(build_pwa.py)。VERSIONが変わると新しい一式を取り直す。
 "use strict";
 
-const VERSION = "96075d6cb2";
+const VERSION = "036947dea0";
 const CACHE = "pokeca-ai-" + VERSION;
 const IMAGE_CACHE = "pokeca-ai-images";
 const FILES = ["./", "bundle/pokeca_bundle.zip", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "index.html", "manifest.webmanifest", "models.json", "models/policy_1790055041_iter360.pt", "models/policy_1790190963_iter160.pt", "models/policy_1791390425_iter540.pt", "pwa_mobile.css", "pwa_shim.js", "pwa_worker.js", "static/app.js", "static/style.css", "vendor/pyodide/numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl", "vendor/pyodide/pyodide-lock.json", "vendor/pyodide/pyodide.asm.mjs", "vendor/pyodide/pyodide.asm.wasm", "vendor/pyodide/pyodide.mjs", "vendor/pyodide/python_stdlib.zip", "vendor/pyodide/pyyaml-6.0.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl"];
