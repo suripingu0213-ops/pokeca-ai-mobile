@@ -1,0 +1,21 @@
+{
+ "version": "32512b47d9",
+ "models": {
+  "hij": {
+   "file": "policy_1790055041_iter360.pt",
+   "vocab": 820,
+   "bytes": 3442239
+  },
+  "osaka_aichi_mirror": {
+   "file": "policy_1790190963_iter160.pt",
+   "vocab": 2362,
+   "bytes": 9719136
+  },
+  "aichi_dragapult_mirror": {
+   "file": "policy_1791390425_iter540.pt",
+   "vocab": 2362,
+   "bytes": 6884322
+  }
+ },
+ "cards": 2638
+}

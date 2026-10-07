@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pokéca AI</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#16202e" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-title" content="Pokéca AI" />
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+  <header>
+    <div id="header-info">
+      <h1>Pokéca AI</h1>
+      <div id="turn-info"></div>
+      <div id="replay-progress" class="hidden"></div>
+      <div id="ai-eval" class="hidden"></div>
+      <div id="last-ai-action" class="hidden"></div>
+    </div>
+    <div id="header-controls">
+      <label id="step-ai-toggle-label" class="hidden" title="ONにすると、AIが操作している側の手を1手ずつ確認しながら進められます">
+        <input type="checkbox" id="step-ai-toggle" /> AIの手をコマ送りで見る
+      </label>
+      <button id="ai-step-btn" class="hidden">AIの次の手へ ▶</button>
+      <button id="ai-autoplay-btn" class="hidden">自動再生 ▶▶</button>
+      <label id="autoplay-speed-label" class="hidden" title="自動再生で1手進めるごとの間隔">速度
+        <select id="autoplay-speed-select">
+          <option value="2000">0.5倍速</option>
+          <option value="900" selected>標準</option>
+          <option value="450">2倍速</option>
+          <option value="200">4倍速</option>
+          <option value="50">8倍速</option>
+        </select>
+      </label>
+      <button id="end-turn-btn" class="hidden">ターン終了</button>
+      <button id="undo-btn" class="hidden" title="直前の操作を取り消して1手前の盤面に戻します(ミスった手は学習データにも残りません)">↩ 一手戻す</button>
+      <button id="log-toggle-btn" class="icon-btn hidden" title="バトルログ">&#128269;</button>
+      <button id="fullscreen-btn" class="icon-btn" title="フルスクリーン">&#9974;</button>
+      <button id="new-game-btn">新しい対局</button>
+      <button id="quit-btn" class="btn-danger">対局を終了する</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="start-screen">
+      <h2>対局セットアップ</h2>
+
+      <div class="setup-step">
+        <div class="step-label">① カテゴリ</div>
+        <div id="category-tabs" class="category-tabs"></div>
+      </div>
+
+      <div class="setup-step">
+        <div class="step-label">② レギュレーション</div>
+        <div id="regulation-cards" class="regulation-cards"></div>
+      </div>
+
+      <div class="setup-step">
+        <div class="step-label">③ デッキ</div>
+        <div class="deck-picker">
+          <label>player0のデッキ
+            <select id="deck-a-select"></select>
+          </label>
+          <button type="button" id="deck-a-recipe-btn" class="recipe-btn">レシピを見る</button>
+          <button type="button" id="deck-a-random-btn" class="recipe-btn">🎲 ランダム</button>
+          <label>player0の操作
+            <select id="player0-agent-select">
+              <option value="human">自分で操作</option>
+              <option value="policy">AIが操作</option>
+            </select>
+          </label>
+          <label id="policy-variant-0-label"><span id="policy-variant-0-text">player0の評価値を表示するAI</span>
+            <select id="policy-variant-0-select"></select>
+          </label>
+          <label>player1のデッキ
+            <select id="deck-b-select"></select>
+          </label>
+          <button type="button" id="deck-b-recipe-btn" class="recipe-btn">レシピを見る</button>
+          <button type="button" id="deck-b-random-btn" class="recipe-btn">🎲 ランダム</button>
+          <label>player1の操作
+            <select id="player1-agent-select">
+              <option value="human">自分で操作</option>
+              <option value="policy">AIが操作</option>
+            </select>
+          </label>
+          <label id="policy-variant-1-label"><span id="policy-variant-1-text">player1の評価値を表示するAI</span>
+            <select id="policy-variant-1-select"></select>
+          </label>
+          <button type="button" id="reload-model-btn" class="recipe-btn">🔄 最新のAIに更新</button>
+          <span id="model-status" class="hint"></span>
+          <p id="ai-vs-ai-hint" class="hint hidden">
+            player0・player1の両方をAI操作にすると、AI同士の対局を観戦できます。
+            画面上部の「AIの手をコマ送りで見る」をONにすると、両者の手を1手ずつ確認しながら進められます。
+          </p>
+        </div>
+      </div>
+
+      <button id="start-game-btn">対局開始</button>
+
+      <div class="setup-step" id="replay-section">
+        <div class="step-label">④ 保存済みのリプレイを見る</div>
+        <div class="deck-picker">
+          <label>リプレイ
+            <select id="replay-select"></select>
+          </label>
+          <button type="button" id="load-replay-btn">リプレイを再生</button>
+          <button type="button" id="refresh-replays-btn" class="recipe-btn">🔄 一覧を更新</button>
+          <button type="button" id="delete-replay-btn" class="btn-danger">🗑 削除</button>
+          <p class="hint">
+            scripts/generate_self_play_replay.py で生成した自己対戦の記録を、対局開始時から1手ずつ
+            コマ送りで見返せます(画面上部の「AIの次の手へ」「自動再生」を使用)。人間の操作はできません。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div id="game-screen" class="hidden">
+      <div id="table">
+        <div id="opp-prizes" class="prize-pile"></div>
+        <div id="opp-hand" class="hand-row-table"></div>
+        <div id="opp-deckdiscard" class="deck-discard"></div>
+
+        <div id="opp-bench" class="bench-row"></div>
+
+        <div id="opp-active" class="active-slot"></div>
+        <div id="stadium-slot"></div>
+        <div id="self-active" class="active-slot"></div>
+
+        <div id="self-bench" class="bench-row"></div>
+
+        <div id="self-prizes" class="prize-pile"></div>
+        <div id="self-hand" class="hand-row-table"></div>
+        <div id="self-deckdiscard" class="deck-discard"></div>
+      </div>
+
+      <section id="attack-panel" class="hidden"></section>
+
+      <section id="hint-area"></section>
+
+      <details id="all-actions-area">
+        <summary>すべての選択肢を表示</summary>
+        <div id="action-buttons"></div>
+      </details>
+
+    </div>
+  </main>
+
+  <div id="log-panel" class="hidden">
+    <div id="log-panel-header">
+      <h3>バトルログ</h3>
+      <button id="log-panel-close">&times;</button>
+    </div>
+    <ul id="log-list"></ul>
+  </div>
+
+  <div id="context-menu-overlay" class="hidden">
+    <div id="context-menu-box">
+      <div id="context-menu-title"></div>
+      <div id="context-menu-items"></div>
+      <button id="context-menu-cancel">キャンセル</button>
+    </div>
+  </div>
+
+  <div id="info-overlay" class="hidden">
+    <div id="info-overlay-box">
+      <div id="info-overlay-header">
+        <div id="info-overlay-title"></div>
+        <button id="info-overlay-close">&times;</button>
+      </div>
+      <div id="info-overlay-body"></div>
+    </div>
+  </div>
+
+  <div id="reveal-overlay" class="hidden">
+    <div id="reveal-box">
+      <div id="reveal-title"></div>
+      <div id="reveal-cards"></div>
+      <button id="reveal-close-btn">OK</button>
+    </div>
+  </div>
+
+  <div id="search-choice-overlay" class="hidden">
+    <div id="search-choice-box">
+      <div id="search-choice-header">
+        <div id="search-choice-title"></div>
+        <button id="search-choice-toggle-btn" type="button" title="盤面を見る(たたむ/開く)">盤面を見る ▾</button>
+      </div>
+      <div id="search-choice-body">
+        <div id="search-choice-filters"></div>
+        <div id="search-choice-cards"></div>
+        <div id="search-choice-footer">
+          <span id="search-choice-count"></span>
+          <button id="search-choice-done-btn">DONE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="damage-distribution-overlay" class="hidden">
+    <div id="damage-distribution-box">
+      <div id="damage-distribution-title"></div>
+      <div id="damage-distribution-hint" class="hidden"></div>
+      <div id="damage-distribution-targets"></div>
+      <div id="damage-distribution-footer">
+        <span id="damage-distribution-count"></span>
+        <button id="damage-distribution-done-btn">DONE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="winner-overlay" class="hidden">
+    <div id="winner-box">
+      <p id="winner-text"></p>
+      <p id="record-auto-discard-notice" class="hidden">
+        相手の山札切れによる勝利のため、この対局のあなたの手は学習データに使わず自動的に破棄しました
+        (山札切れを狙う手を「良い手」としてAIに学習させないため)。
+      </p>
+      <div id="record-decision-box" class="hidden">
+        <p id="record-decision-text">この対局のあなたの手をAIの学習データとして使いますか?</p>
+        <div id="record-decision-buttons">
+          <button id="record-decision-yes-btn">学習に使う</button>
+          <button id="record-decision-no-btn" class="btn-secondary">使わない</button>
+          <button id="record-decision-bug-btn" class="btn-secondary">バグ報告</button>
+        </div>
+        <div id="bug-report-box" class="hidden">
+          <p id="bug-report-text">何がおかしかったか教えてください(空でも送れます)。対局全体の記録を保存します。</p>
+          <textarea id="bug-report-input" rows="3" placeholder="例: ○○の特性が発動しなかった"></textarea>
+          <div id="bug-report-buttons">
+            <button id="bug-report-submit-btn">送信</button>
+            <button id="bug-report-cancel-btn" class="btn-secondary">戻る</button>
+          </div>
+        </div>
+      </div>
+      <button id="winner-log-btn">バトルログを見る</button>
+      <button id="winner-newgame-btn">新しい対局を始める</button>
+    </div>
+  </div>
+
+  <script src="pwa_shim.js"></script>
+  <script src="static/app.js"></script>
+</body>
+</html>

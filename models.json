@@ -1,0 +1,14 @@
+[
+ {
+  "url": "models/policy_1790055041_iter360.pt",
+  "path": "data/checkpoints_hij/policy_1790055041_iter360.pt"
+ },
+ {
+  "url": "models/policy_1790190963_iter160.pt",
+  "path": "data/checkpoints_osaka_aichi_mirror/policy_1790190963_iter160.pt"
+ },
+ {
+  "url": "models/policy_1791390425_iter540.pt",
+  "path": "data/checkpoints_aichi_dragapult_mirror/policy_1791390425_iter540.pt"
+ }
+]
